@@ -1,0 +1,40 @@
+<?xml version='1.0'?>
+<!DOCTYPE platform SYSTEM "https://simgrid.org/simgrid.dtd">
+<platform version="4.1">
+
+ <AS  id="AS0"  routing="Full">
+
+
+	 <!---  Cluster para los generadores de peticiones clientes -->
+	<cluster id="cluster_0" prefix="c-" suffix="" radical="0-1"
+                speed="4Gf" bw="125GBps" lat="0us" bb_bw="1000000000GBps"
+                bb_lat="0us" router_id="router_cluster0" />
+
+	 <!---  Cluster para los dispatchers de peticiones -->
+	<cluster id="cluster_1" prefix="d-" suffix="" radical="0-4"
+                speed="2Gf" bw="125GBps" lat="0us" bb_bw="1000000000GBps"
+                bb_lat="0us" router_id="router_cluster1" />
+
+	 <!---  Cluster para los servidores de peticiones -->
+	<cluster id="cluster_2" prefix="s-" suffix="" radical="0-1000"
+                speed="1Gf" bw="125GBps" lat="0us" bb_bw="10000000GBps"
+                bb_lat="0us" router_id="router_cluster2"  />
+
+
+	<link id="backbone01" bandwidth="100000000GBps" latency="0us" />
+	<link id="backbone12" bandwidth="100000000GBps" latency="0us" />
+
+        <ASroute src="cluster_0" dst="cluster_1" gw_src="router_cluster0"
+                gw_dst="router_cluster1">
+                <link_ctn id="backbone01" />
+        </ASroute>
+
+        <ASroute src="cluster_1" dst="cluster_2" gw_src="router_cluster1"
+                gw_dst="router_cluster2">
+                <link_ctn id="backbone12" />
+        </ASroute>
+
+
+
+</AS>
+</platform>
