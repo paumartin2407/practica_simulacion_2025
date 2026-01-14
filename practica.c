@@ -173,28 +173,51 @@ int dispatcher(int argc, char *argv[])
 						s = uniform_int(0, NUM_SERVERS - 1);
 						break;
 					case DISPATCH_TWO_RANDOM: {
-						// Power of two choices: dos servidores aleatorios, elige el de menor carga (Nsystem)
 						int a = uniform_int(0, NUM_SERVERS - 1);
-						int b = a;
+						int b = uniform_int(0, NUM_SERVERS - 1);
+
 						if (NUM_SERVERS > 1) {
-							while ((b = uniform_int(0, NUM_SERVERS - 1)) == a) { /* reintenta hasta distinto */ }
+							while (a == b) {
+								b = uniform_int(0, NUM_SERVERS - 1);
+							}
 						}
-						s = (Nsystem[a] <= Nsystem[b]) ? a : b;
+
+						// Comparar cargas
+						if (Nsystem[a] <= Nsystem[b]) {
+							s = a;
+						} else {
+							s = b;
+						}
+						
 						break;
 					}
 					case DISPATCH_TWO_RR_RANDOM: {
-						// Power of two choices: uno por RR y otro aleatorio distinto; elige el de menor carga
+						// Elegir el servidor a por turno
 						int a = rr_next_server;
+						
+						// Actualizamos el contador
 						rr_next_server = (rr_next_server + 1) % NUM_SERVERS;
-						int b = a;
+
+						// Elegir el servidor b al azar
+						int b = uniform_int(0, NUM_SERVERS - 1);
+
 						if (NUM_SERVERS > 1) {
-							while ((b = uniform_int(0, NUM_SERVERS - 1)) == a) { /* reintenta hasta distinto */ }
+							while (b == a) {
+								b = uniform_int(0, NUM_SERVERS - 1);
+							}
 						}
-						s = (Nsystem[a] <= Nsystem[b]) ? a : b;
+						
+						// Comparar cargas
+						if (Nsystem[a] <= Nsystem[b]) {
+							s = a;
+						} else {
+							s = b;
+						}
+
 						break;
 					}
 					case DISPATCH_SQF: {
-						// Selecciona el servidor con menor Nsystem (cola + en servicio)
+						// Selecciona el servidor con menor carga
 						int best = 0;
 						int best_val = Nsystem[0];
 						for (int i = 1; i < NUM_SERVERS; i++) {
@@ -211,7 +234,6 @@ int dispatcher(int argc, char *argv[])
 						rr_next_server = (rr_next_server + 1) % NUM_SERVERS;
 						break;
 					default:
-						// Fallback a aleatorio
 						s = uniform_int(0, NUM_SERVERS - 1);
 				}
 
@@ -261,14 +283,13 @@ int server(int argc, char *argv[])
     		Nqueue[my_s]++;   // un elemento mas en la cola 
     		Nsystem[my_s]++;  // un elemento mas en el sistema 
 
-		// Inserción en la cola según política de planificación
-		// FCFS: push al final; SJF: push y ordenar por t_service asc; LJF: ordenar por t_service desc
+		//FCFS: push al final; 
+		//SJF: push y ordenar ascendente; 
+		//LJF: ordenar descendente;
 		xbt_dynar_push(client_requests[my_s], (const char *)&req);
 		if (QUEUE_POLICY == QUEUE_SJF) {
-			// Ordena por t_service ascendente (Shortest Job First)
 			xbt_dynar_sort(client_requests[my_s], sort_function);
 		} else if (QUEUE_POLICY == QUEUE_LJF) {
-			// Ordena por t_service descendente (Longest Job First)
 			xbt_dynar_sort(client_requests[my_s], sort_function_desc);
 		}
 
