@@ -22,7 +22,7 @@
 #define SERVICE_RATE    1.0     // Mu = 1  service time = 1 / 1; tasa de servicio de cada servidor
 double ARRIVAL_RATE;		// tasa de llegada, como argumento del programa
 
-// Políticas de enrutado y planificación de cola (configurables por CLI)
+// Declaracion de algoritmos de distribución y políticas de planificación
 typedef enum { DISPATCH_RANDOM = 0, DISPATCH_SQF = 1, DISPATCH_RR = 2, DISPATCH_TWO_RANDOM = 3, DISPATCH_TWO_RR_RANDOM = 4 } dispatch_policy_t;
 typedef enum { QUEUE_FCFS = 0, QUEUE_SJF = 1, QUEUE_LJF = 2 } queue_policy_t;
 
